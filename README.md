@@ -1,6 +1,6 @@
 # Unitree G1 3D Temperature Visualizer
 
-A stunning, interactive 3D visualization dashboard for monitoring Unitree G1 robot motor temperatures in real-time. The dashboard renders the complete robot using actual STL models with dynamic temperature-based color gradients.
+A stunning, interactive 3D visualization dashboard for monitoring Unitree G1 robot motor temperatures in real-time. The dashboard renders the complete robot (29DOF with rubber hands) using actual STL models with dynamic temperature-based color gradients.
 
 ![G1 3D Visualizer](https://img.shields.io/badge/Status-Production-green) ![Python](https://img.shields.io/badge/Python-3.8+-blue) ![License](https://img.shields.io/badge/License-MIT-yellow)
 
@@ -16,6 +16,7 @@ A stunning, interactive 3D visualization dashboard for monitoring Unitree G1 rob
 - **📊 Live Statistics**: Real-time min/max/average temperature tracking
 - **🎨 Modern UI**: Glassmorphism design with smooth animations
 - **⚡ WebSocket Updates**: Real-time data streaming from the robot
+- **🌐 Offline Support**: Works without internet - all dependencies served locally
 
 ## 🎬 Demo
 
@@ -67,10 +68,11 @@ cd ..
 ✅ **All robot assets are included in this package!**
 
 The visualizer comes with:
-- URDF file: `assets/g1/g1_body29_hand14.urdf`
+- URDF file: `assets/g1/g1_29dof_rev_1_0.urdf` (29DOF with rubber hands)
 - STL meshes: `assets/g1/meshes/*.STL` (69 mesh files)
+- JavaScript libraries: `assets/js/` (Three.js, Socket.IO, OrbitControls - for offline use)
 
-No additional asset downloads required - everything is ready to use!
+No internet connection or additional asset downloads required - everything is ready to use!
 
 ## 🎯 Usage
 
@@ -132,11 +134,17 @@ The visualization uses a smooth gradient to represent motor temperatures:
 unitree-g1-temperature-monitor/
 ├── dashboard_3d.py          # Main application (real robot data)
 ├── test_dashboard_3d.py     # Test version with simulated data
+├── config.py                # Configuration and motor mappings
 ├── templates/
 │   └── index_3d.html        # 3D visualization frontend
 ├── assets/
+│   ├── js/                  # Local JavaScript libraries (offline support)
+│   │   ├── socket.io.min.js
+│   │   ├── three.min.js
+│   │   ├── STLLoader.js
+│   │   └── OrbitControls.js
 │   └── g1/
-│       ├── g1_body29_hand14.urdf    # Robot URDF file (from Unitree)
+│       ├── g1_29dof_rev_1_0.urdf    # Robot URDF file (29DOF rubber hands, from Unitree)
 │       └── meshes/                   # STL mesh files (69 files, from Unitree)
 ├── requirements.txt         # Python dependencies
 ├── README.md               # This file
@@ -156,13 +164,14 @@ unitree-g1-temperature-monitor/
 - Runs on port 8081
 
 ### Frontend (JavaScript/Three.js)
-- **Three.js**: 3D rendering engine
-- **STLLoader**: Loads robot mesh files
-- **OrbitControls**: Interactive camera controls
-- **Socket.IO**: Real-time data updates
+- **Three.js**: 3D rendering engine (served locally)
+- **STLLoader**: Loads robot mesh files (served locally)
+- **OrbitControls**: Interactive camera controls (served locally)
+- **Socket.IO**: Real-time data updates (served locally)
 - URDF parsing for kinematic tree construction
 - Dynamic material coloring based on temperature
 - Raycasting for mesh selection
+- **Offline capable**: All JavaScript dependencies bundled locally
 
 ### Motor-to-Mesh Mapping
 
@@ -206,6 +215,16 @@ The dashboard communicates with the G1 robot over the network. Ensure:
 2. The correct network interface is specified when running
 3. Firewall allows connections on port 8081
 4. The Unitree SDK2 is properly configured
+
+### Environment Variables (Optional)
+
+For enhanced security, you can set a custom Flask secret key:
+
+```bash
+export FLASK_SECRET_KEY="your-secret-key-here"
+```
+
+If not set, a random secret key will be generated automatically on each startup.
 
 ## 📝 Notes
 

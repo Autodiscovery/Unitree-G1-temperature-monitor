@@ -1,6 +1,8 @@
 import sys
 import time
 import json
+import os
+import secrets
 from threading import Thread, Lock
 from flask import Flask, render_template, jsonify, send_from_directory
 from flask_socketio import SocketIO
@@ -8,76 +10,14 @@ from flask_socketio import SocketIO
 from unitree_sdk2py.core.channel import ChannelSubscriber, ChannelFactoryInitialize
 from unitree_sdk2py.idl.unitree_hg.msg.dds_ import LowState_
 
+from config import MOTOR_NAMES, MOTOR_TO_MESH, URDF_FILENAME, URDF_PATH, DEFAULT_PORT, DEFAULT_HOST
+
 app = Flask(__name__)
-app.config['SECRET_KEY'] = 'unitree-g1-3d-dashboard'
+# Use environment variable for secret key, fallback to random key for security
+app.config['SECRET_KEY'] = os.getenv('FLASK_SECRET_KEY', secrets.token_hex(16))
 socketio = SocketIO(app, cors_allowed_origins="*")
 
-# Motor ID to name mapping for G1 robot (29 motors = 29 DOF)
-MOTOR_NAMES = {
-    0: "Left Hip Pitch",
-    1: "Left Hip Roll",
-    2: "Left Hip Yaw",
-    3: "Left Knee",
-    4: "Left Ankle Pitch",
-    5: "Left Ankle Roll",
-    6: "Right Hip Pitch",
-    7: "Right Hip Roll",
-    8: "Right Hip Yaw",
-    9: "Right Knee",
-    10: "Right Ankle Pitch",
-    11: "Right Ankle Roll",
-    12: "Waist Yaw",
-    13: "Waist Roll",
-    14: "Waist Pitch",
-    15: "Left Shoulder Pitch",
-    16: "Left Shoulder Roll",
-    17: "Left Shoulder Yaw",
-    18: "Left Elbow",
-    19: "Left Wrist Roll",
-    20: "Left Wrist Pitch",
-    21: "Left Wrist Yaw",
-    22: "Right Shoulder Pitch",
-    23: "Right Shoulder Roll",
-    24: "Right Shoulder Yaw",
-    25: "Right Elbow",
-    26: "Right Wrist Roll",
-    27: "Right Wrist Pitch",
-    28: "Right Wrist Yaw",
-}
-
-# Motor ID to mesh link name mapping (based on URDF structure)
-# Maps each of the 29 motors to their corresponding visual mesh link
-MOTOR_TO_MESH = {
-    0: "left_hip_pitch_link",
-    1: "left_hip_roll_link",
-    2: "left_hip_yaw_link",
-    3: "left_knee_link",
-    4: "left_ankle_pitch_link",
-    5: "left_ankle_roll_link",
-    6: "right_hip_pitch_link",
-    7: "right_hip_roll_link",
-    8: "right_hip_yaw_link",
-    9: "right_knee_link",
-    10: "right_ankle_pitch_link",
-    11: "right_ankle_roll_link",
-    12: "waist_yaw_link",
-    13: "waist_roll_link",
-    14: "torso_link",  # waist_pitch is part of torso
-    15: "left_shoulder_pitch_link",
-    16: "left_shoulder_roll_link",
-    17: "left_shoulder_yaw_link",
-    18: "left_elbow_link",
-    19: "left_wrist_roll_link",
-    20: "left_wrist_pitch_link",
-    21: "left_wrist_yaw_link",
-    22: "right_shoulder_pitch_link",
-    23: "right_shoulder_roll_link",
-    24: "right_shoulder_yaw_link",
-    25: "right_elbow_link",
-    26: "right_wrist_roll_link",
-    27: "right_wrist_pitch_link",
-    28: "right_wrist_yaw_link",
-}
+# Motor mappings imported from config.py
 
 # Global variable to store latest motor data
 motor_data = {
@@ -166,8 +106,7 @@ def serve_assets(filename):
 @app.route('/api/urdf')
 def get_urdf():
     """Serve the URDF file for parsing."""
-    import os
-    urdf_path = os.path.join(os.path.dirname(__file__), 'assets', 'g1', 'g1_body29_hand14.urdf')
+    urdf_path = os.path.join(os.path.dirname(__file__), URDF_PATH, URDF_FILENAME)
     try:
         with open(urdf_path, 'r') as f:
             return f.read(), 200, {'Content-Type': 'application/xml'}
@@ -175,10 +114,17 @@ def get_urdf():
         return jsonify({'error': str(e)}), 404
 
 
+@app.route('/assets/js/<path:filename>')
+def serve_js(filename):
+    """Serve JavaScript files for offline support."""
+    js_path = os.path.join(os.path.dirname(__file__), 'assets', 'js')
+    return send_from_directory(js_path, filename)
+
+
 
 def run_flask_app():
     """Run the Flask application."""
-    socketio.run(app, host='0.0.0.0', port=8081, debug=False, allow_unsafe_werkzeug=True)
+    socketio.run(app, host=DEFAULT_HOST, port=DEFAULT_PORT, debug=False)
 
 
 def main():
