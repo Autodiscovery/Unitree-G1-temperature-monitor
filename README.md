@@ -214,26 +214,6 @@ The dashboard communicates with the G1 robot over the network. Ensure:
 - Color gradients are interpolated smoothly for visual appeal
 - All 35 motors are monitored simultaneously
 
-## 🚧 Future Enhancements
-
-Potential improvements:
-- [ ] Joint angle visualization
-- [ ] Historical temperature graphs
-- [ ] Temperature alerts and warnings
-- [ ] Export 3D view as image/video
-- [ ] VR/AR support
-- [ ] Multi-robot support
-- [ ] Custom color schemes
-- [ ] Temperature logging to file
-
-## 📄 License
-
-This project is part of the Unitree G1 XR Teleoperation system.
-
-## 🤝 Contributing
-
-Contributions are welcome! Please feel free to submit issues or pull requests.
-
 ## 📧 Support
 
 For issues or questions:
