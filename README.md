@@ -36,7 +36,7 @@ The visualization displays all 35 motors of the G1 robot with:
 ### 1. Clone the Repository
 
 ```bash
-git clone <your-repo-url>
+git clone https://github.com/Autodiscovery/Unitree-G1-temperature-monitor
 cd unitree-g1-temperature-monitor
 ```
 
